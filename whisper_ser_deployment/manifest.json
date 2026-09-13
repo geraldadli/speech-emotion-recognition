@@ -1,0 +1,63 @@
+{
+  "format_version": 1,
+  "model_id": "openai/whisper-large-v3",
+  "model_revision": "06f233fe06e710322aca913c1bc4249a0d71fce1",
+  "encoder_frozen": true,
+  "labels": [
+    "angry",
+    "calm",
+    "disgust",
+    "fear",
+    "happy",
+    "neutral",
+    "sad",
+    "surprise"
+  ],
+  "head": {
+    "input_dim": 7680,
+    "num_labels": 8,
+    "hidden_dim": 256,
+    "dropout": 0.4
+  },
+  "audio_config": {
+    "sample_rate": 16000,
+    "min_seconds": 0.35,
+    "max_seconds": 120.0,
+    "min_rms": 1e-05,
+    "trim_db": 35.0,
+    "trim_margin_seconds": 0.15,
+    "chunk_seconds": 30,
+    "encoder_batch_size": 4,
+    "normalization_clip": 8.0
+  },
+  "temperature": 1.0830575628938528,
+  "feature_layout": [
+    "mean_1280",
+    "std_1280",
+    "four_ordered_quarter_contrasts_5120"
+  ],
+  "training_scope": "training speakers only; validation selects epoch/head/temperature; test excluded",
+  "selected_head": "mlp",
+  "selected_epoch": 12,
+  "seed": 42,
+  "feature_fingerprint": "8f6e79949ee93fc9560212a789f8d8efca2163af5c7faa7b3d370896cb764800",
+  "packages": {
+    "numpy": "2.0.2",
+    "pandas": "2.3.3",
+    "scipy": "1.16.3",
+    "torch": "2.10.0+cu128",
+    "transformers": "4.49.0",
+    "accelerate": "1.4.0",
+    "huggingface-hub": "0.36.2",
+    "safetensors": "0.7.0",
+    "librosa": "0.11.0",
+    "soundfile": "0.13.1",
+    "soxr": "1.0.0",
+    "scikit-learn": "1.6.1",
+    "imageio-ffmpeg": "0.6.0"
+  },
+  "python_version": "3.12.13",
+  "extraction_precision": "FP16 GPU",
+  "test_accuracy": 0.7308752584424535,
+  "split_policy": "source-aware speaker separation; TESS 1 train / 0 validation / 1 test"
+}

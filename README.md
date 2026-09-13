@@ -134,7 +134,8 @@ Speech Emotion Recognition/
 ├── README.md
 ├── speech-emotion-recognition.ipynb
 ├── evaluation.json
-└── confusion_matrix.png
+├── confusion_matrix.png
+└── whisper_ser_deployment/    # Encoder, classifier, preprocessing, and inference code
 ```
 
 The notebook generates only three final Kaggle files:
@@ -145,11 +146,20 @@ The notebook generates only three final Kaggle files:
 | `evaluation.json` | Overall and per-source metrics, class report, split counts, and export-check status. |
 | `confusion_matrix.png` | Test counts and class recall. |
 
-**The deployment ZIP is not included in the current project folder.** Download it from the completed Kaggle run, or generate it by running the notebook. The saved evaluation records a successful offline export check; the archive itself was not available for inspection in this folder.
+**The extracted deployment bundle is included in `whisper_ser_deployment/`.** Model weights are stored with Git LFS. The saved evaluation records a successful offline export check. The notebook can also regenerate the deployment ZIP.
 
 ## Use the exported model
 
-Extract `whisper_ser_deployment.zip` next to your application. Install its requirements in a dedicated environment, using the PyTorch build appropriate to your CPU or GPU:
+Install [Git LFS](https://git-lfs.com/) before cloning so the model files are downloaded rather than left as small pointer files:
+
+```bash
+git lfs install
+git clone https://github.com/geraldadli/speech-emotion-recognition.git
+cd speech-emotion-recognition
+git lfs pull
+```
+
+The encoder weights are approximately 1.27 GB. Alternatively, extract the deployment ZIP produced by the notebook next to your application. Install the bundle's requirements in a dedicated environment, using the PyTorch build appropriate to your CPU or GPU:
 
 ```bash
 python -m pip install -r whisper_ser_deployment/requirements.txt
