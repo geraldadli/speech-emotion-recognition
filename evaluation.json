@@ -1,0 +1,269 @@
+{
+  "backbone": "openai/whisper-large-v3",
+  "revision": "06f233fe06e710322aca913c1bc4249a0d71fce1",
+  "labels": [
+    "angry",
+    "calm",
+    "disgust",
+    "fear",
+    "happy",
+    "neutral",
+    "sad",
+    "surprise"
+  ],
+  "selected_head": "mlp",
+  "selected_epoch": 12,
+  "validation_selection": [
+    {
+      "name": "linear",
+      "best_epoch": 26,
+      "val_accuracy": 0.7759308510638298,
+      "val_macro_f1": 0.7764197328767624
+    },
+    {
+      "name": "mlp",
+      "best_epoch": 12,
+      "val_accuracy": 0.776595744680851,
+      "val_macro_f1": 0.7817970648437277
+    }
+  ],
+  "test": {
+    "n": 2902,
+    "accuracy": 0.7308752584424535,
+    "balanced_accuracy_present_classes": 0.7434422981777629,
+    "macro_f1_present_classes": 0.7341081923364763
+  },
+  "test_macro_f1_all_eight": 0.7341081923364763,
+  "test_log_loss": 0.8119134762642948,
+  "by_source": {
+    "RAVDESS": {
+      "n": 240,
+      "accuracy": 0.775,
+      "balanced_accuracy_present_classes": 0.7890625,
+      "macro_f1_present_classes": 0.7653881389033967
+    },
+    "CREMA-D": {
+      "n": 1142,
+      "accuracy": 0.7539404553415061,
+      "balanced_accuracy_present_classes": 0.7561031782588667,
+      "macro_f1_present_classes": 0.755692557951658
+    },
+    "TESS": {
+      "n": 1400,
+      "accuracy": 0.7035714285714286,
+      "balanced_accuracy_present_classes": 0.7035714285714286,
+      "macro_f1_present_classes": 0.6440154358297782
+    },
+    "SAVEE": {
+      "n": 120,
+      "accuracy": 0.7416666666666667,
+      "balanced_accuracy_present_classes": 0.7333333333333334,
+      "macro_f1_present_classes": 0.7440148561116303
+    }
+  },
+  "equal_source_mean_accuracy": 0.7435446376449004,
+  "classification_report": {
+    "angry": {
+      "precision": 0.9141914191419142,
+      "recall": 0.6266968325791855,
+      "f1-score": 0.7436241610738255,
+      "support": 442.0
+    },
+    "calm": {
+      "precision": 0.9230769230769231,
+      "recall": 0.75,
+      "f1-score": 0.8275862068965517,
+      "support": 32.0
+    },
+    "disgust": {
+      "precision": 0.7369439071566731,
+      "recall": 0.8619909502262444,
+      "f1-score": 0.794577685088634,
+      "support": 442.0
+    },
+    "fear": {
+      "precision": 0.6631944444444444,
+      "recall": 0.8642533936651584,
+      "f1-score": 0.75049115913556,
+      "support": 442.0
+    },
+    "happy": {
+      "precision": 0.7813953488372093,
+      "recall": 0.38009049773755654,
+      "f1-score": 0.5114155251141552,
+      "support": 442.0
+    },
+    "neutral": {
+      "precision": 0.8433420365535248,
+      "recall": 0.7820823244552058,
+      "f1-score": 0.8115577889447236,
+      "support": 413.0
+    },
+    "sad": {
+      "precision": 0.7074688796680498,
+      "recall": 0.7714932126696833,
+      "f1-score": 0.7380952380952381,
+      "support": 442.0
+    },
+    "surprise": {
+      "precision": 0.5625,
+      "recall": 0.9109311740890689,
+      "f1-score": 0.6955177743431221,
+      "support": 247.0
+    },
+    "accuracy": 0.7308752584424535,
+    "macro avg": {
+      "precision": 0.7665141198598424,
+      "recall": 0.7434422981777629,
+      "f1-score": 0.7341081923364763,
+      "support": 2902.0
+    },
+    "weighted avg": {
+      "precision": 0.7573356203662344,
+      "recall": 0.7308752584424535,
+      "f1-score": 0.7227205656091965,
+      "support": 2902.0
+    }
+  },
+  "confusion_matrix": [
+    [
+      277,
+      0,
+      15,
+      114,
+      21,
+      9,
+      2,
+      4
+    ],
+    [
+      0,
+      24,
+      4,
+      0,
+      0,
+      2,
+      2,
+      0
+    ],
+    [
+      5,
+      0,
+      381,
+      15,
+      3,
+      9,
+      29,
+      0
+    ],
+    [
+      1,
+      0,
+      10,
+      382,
+      10,
+      8,
+      31,
+      0
+    ],
+    [
+      17,
+      0,
+      34,
+      18,
+      168,
+      22,
+      13,
+      170
+    ],
+    [
+      1,
+      0,
+      6,
+      9,
+      9,
+      323,
+      64,
+      1
+    ],
+    [
+      0,
+      2,
+      48,
+      37,
+      4,
+      10,
+      341,
+      0
+    ],
+    [
+      2,
+      0,
+      19,
+      1,
+      0,
+      0,
+      0,
+      225
+    ]
+  ],
+  "temperature": 1.0830575628938528,
+  "target_over_70_percent_met": true,
+  "audit_counts": {
+    "accepted": 12154,
+    "duplicate_audio": 1441,
+    "conflicting_labels": 6,
+    "rejected_audio": 1
+  },
+  "split_counts": {
+    "CREMA-D": {
+      "test": 1142,
+      "train": 5148,
+      "validation": 1145
+    },
+    "RAVDESS": {
+      "test": 240,
+      "train": 960,
+      "validation": 239
+    },
+    "SAVEE": {
+      "test": 120,
+      "train": 240,
+      "validation": 120
+    },
+    "TESS": {
+      "test": 1400,
+      "train": 1400,
+      "validation": 0
+    }
+  },
+  "speaker_counts": {
+    "CREMA-D": {
+      "test": 14,
+      "train": 63,
+      "validation": 14
+    },
+    "RAVDESS": {
+      "test": 4,
+      "train": 16,
+      "validation": 4
+    },
+    "SAVEE": {
+      "test": 1,
+      "train": 2,
+      "validation": 1
+    },
+    "TESS": {
+      "test": 1,
+      "train": 1,
+      "validation": 0
+    }
+  },
+  "limitations": [
+    "TESS has no validation speaker",
+    "Calm occurs only in RAVDESS",
+    "Known corpora/scripts; not a new-domain test",
+    "Cross-corpus speaker aliases and pretraining overlap are not independently verified"
+  ],
+  "offline_export_check": "passed: fresh process, local weights, matching class/probabilities"
+}
