@@ -207,4 +207,8 @@ The bundle stores encoder and classifier weights as **Safetensors** and normaliz
 - [TESS](https://doi.org/10.5683/SP2/E8H2MF)
 - [SAVEE](https://kahlan.eps.surrey.ac.uk/savee/)
 
-No project `LICENSE` file is currently included. The source datasets, pretrained checkpoint, and dependencies retain their own terms; this README does not grant additional usage rights.
+## License
+
+The original project code, notebook code, and documentation are licensed under the [MIT License](LICENSE). Copyright (c) 2026 Gerald Adli.
+
+This license does not relicense the source datasets, pretrained Whisper checkpoint, third-party dependencies, or trained model artifacts. Their applicable terms remain separate; see the source references above. The code license alone does not establish unrestricted commercial rights to the trained model.
