@@ -1,0 +1,14 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const html=fs.readFileSync(__dirname+'/index.html','utf8');
+const code=html.slice(html.indexOf('// Waveform:'),html.indexOf('// End waveform.'));
+const strokes=[];const drawing={setTransform(){},clearRect(){},beginPath(){},moveTo(x,y){strokes.push([x,y])},lineTo(x,y){strokes.push([x,y])},stroke(){},createLinearGradient(){return {addColorStop(){}}}};
+const canvas={clientWidth:360,clientHeight:88,getContext:()=>drawing};const status={};let cancelled=0;
+const ctx={$:id=>id==='waveform'?canvas:status,window:{devicePixelRatio:2,matchMedia:()=>({matches:false})},ResizeObserver:class{observe(){}},requestAnimationFrame:()=>7,cancelAnimationFrame:()=>cancelled++};
+vm.createContext(ctx);vm.runInContext(code+';this.api={startWaveform,pushWaveform,drawWaveform,stopWaveform,state:()=>({bins:waveBins,capacity:waveCapacity,active:waveActive})}',ctx);
+const a=ctx.api;a.startWaveform(48000);
+const silence=new Float32Array(2048);a.pushWaveform(silence);assert.ok(a.state().bins.every(b=>b[0]===0&&b[1]===0));
+const samples=Float32Array.from({length:96000},(_,i)=>Math.sin(i*.1)*.4);const copy=samples.slice();a.pushWaveform(samples);assert.equal(a.state().bins.length,a.state().capacity);assert.deepEqual(samples,copy,'Visualization must not mutate PCM');assert.ok(a.state().bins.some(b=>b[0]<-.3&&b[1]>.3));
+a.drawWaveform();assert.equal(canvas.width,720);assert.ok(strokes.every(([x,y])=>Number.isFinite(x)&&Number.isFinite(y)&&y>=0&&y<=88));
+a.stopWaveform();assert.equal(a.state().active,false);assert.equal(a.state().bins.length,0);assert.ok(cancelled);a.pushWaveform(samples);assert.equal(a.state().bins.length,0);
+a.startWaveform(16000);assert.equal(a.state().capacity,125);assert.equal(a.state().bins.length,0);
+console.log('Waveform checks passed: silence, PCM preservation, bounded history, canvas drawing, stop and restart.');

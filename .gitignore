@@ -1,1 +1,5 @@
 /hf_space/
+/.venv-transcription/
+/.venv-emotion/
+/local_transcription/models/
+**/__pycache__/

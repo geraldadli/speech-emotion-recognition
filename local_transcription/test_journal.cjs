@@ -1,0 +1,15 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const html=fs.readFileSync(__dirname+'/index.html','utf8');
+const source=html.slice(html.indexOf('const JOURNAL_KEY='),html.indexOf('function status('));
+const nodes={};const node=()=>({children:[],style:{},append(...v){this.children.push(...v)},replaceChildren(){this.children=[]}});
+let stored='[]';const ctx={crypto:require('node:crypto').webcrypto,document:{createElement:node},$:id=>nodes[id]??=node(),localStorage:{getItem:()=>stored,setItem:(k,v)=>stored=v}};vm.createContext(ctx);
+vm.runInContext(source+';this.api={newJournal,buildEntry,readEntries,showEntries,updateJournal,setJournal:j=>journal=j};',ctx);
+const a=ctx.api,j=a.newJournal();a.setJournal(j);
+a.updateJournal({type:'transcript',confirmed:'Today',partial:'was difficult.',audio_seconds:4});assert.equal(j.complete,false);assert.equal(j.originalTranscript,'Today was difficult.');
+a.updateJournal({type:'done',confirmed:'Today was different.',partial:'',audio_seconds:8});assert.equal(nodes.reflection.hidden,false);assert.equal(j.complete,true);
+assert.throws(()=>a.buildEntry(j,'Words','',''),/Choose/);assert.throws(()=>a.buildEntry(j,'','Calm',''),/words/);
+const entry=a.buildEntry(j,'Today was good.','Happy','A personal note');assert.equal(entry.feelingSource,'self_report');assert.equal(entry.originalTranscript,'Today was different.');assert.equal(entry.words,'Today was good.');assert.equal(stored,'[]','No automatic persistence');
+stored=JSON.stringify([entry]);a.showEntries();assert.equal(nodes.entries.children.length,1);
+stored='invalid';a.showEntries();assert.match(nodes.entries.textContent,/unavailable/);
+const next=a.newJournal();assert.notEqual(next.id,j.id);assert.equal(next.voiceEstimates.length,0);
+console.log('Journal tests passed: transcript correction, explicit feeling, no autosave, history, invalid storage, reset.');

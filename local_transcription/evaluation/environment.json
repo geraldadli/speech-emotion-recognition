@@ -1,0 +1,21 @@
+{
+  "recorded_at_utc": "2026-09-15T12:30:37.081604+00:00",
+  "python": "3.12.6 (tags/v3.12.6:a4a2d2b, Sep  6 2024, 20:11:23) [MSC v.1940 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU",
+  "gpu_memory_mib": 8188,
+  "driver": "591.44",
+  "packages": {
+    "numpy": "2.5.3",
+    "faster-whisper": "1.2.1",
+    "ctranslate2": "4.8.2",
+    "websockets": "17.1",
+    "soxr": "1.1.0"
+  },
+  "code_sha256": {
+    "evaluate_asr.py": "b2b6e4f621a501c0172fef57bb6118ff0c193fd8ef486d9fe096fea77db66c86",
+    "app.py": "4dffd90a87a732197229dafb644c4d8c50c37f905813020e9debdb83830091b0",
+    "engine.py": "0012cfdc221fd58908c99134360789f46acc43f77e7d2a1af279a922d71509fe",
+    "emotion.py": "f20c512adefd41e76324a4c31f7b67ff595abb1e9809d5c6fe2ad6ecdd68b331"
+  }
+}

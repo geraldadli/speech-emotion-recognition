@@ -1,0 +1,185 @@
+{
+  "sample": {
+    "id": "synthetic_english",
+    "audio": "synthetic_english.wav",
+    "source": "Windows System.Speech synthetic English voice; not a human participant",
+    "reference": "Good morning everyone. Today we are testing a local speech recognition application. The transcript should appear while I am still speaking. We can continue with another sentence to verify that the microphone stream is processed continuously. This demonstration runs on the computer without an external speech recognition service."
+  },
+  "audio_sha256": "a031fcf1b7b2bb0eb5baec00c31cff59424bb77b004784ee7801758f40908f27",
+  "duration_seconds": 23.565125,
+  "health": {
+    "ready": true,
+    "message": "Ready on GPU",
+    "device": "cuda",
+    "model": "base",
+    "emotion": {
+      "ready": true,
+      "device": "cuda",
+      "message": "Emotion model ready"
+    }
+  },
+  "noise": "Seeded stationary Gaussian white noise, SNR measured over entire clip including pauses.",
+  "normalization": "Lowercase; Unicode apostrophe normalized; punctuation ignored; apostrophes inside words retained; no number expansion.",
+  "limitations": "One synthetic voice and script. Reference is intended TTS text, not independently human-verified. Not general ASR accuracy or real-user evaluation. Timing includes localhost transport and concurrent emotion inference; completion includes final emotion wait. No microphone/browser/ngrok path.",
+  "results": [
+    {
+      "condition": "clean",
+      "repeat": 1,
+      "seed": 20260915,
+      "snr_db": null,
+      "hypothesis": "Good morning everyone. Today we are testing a local speech recognition application. The transcript should appear while I am still speaking. We can continue with another sentence to verify that the microphone stream is processed continuously. This demonstration runs on the computer without an external speech recognition service.",
+      "first_text_seconds": 2.143956799991429,
+      "partial_before_stop": true,
+      "completion_after_stop_seconds": 0.5326933999895118,
+      "elapsed_seconds": 24.100220299966168,
+      "changed_text_updates": 19,
+      "update_gap_p95_seconds": 1.2473817749909357,
+      "decode_sum_seconds": 5.988,
+      "emotion_updates": 6,
+      "emotion_errors": [],
+      "S": 0,
+      "D": 0,
+      "I": 0,
+      "N": 48,
+      "wer": 0.0,
+      "errors": []
+    },
+    {
+      "condition": "noise_20dB",
+      "repeat": 1,
+      "seed": 20260915,
+      "snr_db": 19.999999999059135,
+      "hypothesis": "Good morning everyone. Today we are testing a local speech recognition application. The transcript should appear while I am still speaking. We can continue with another sentence to verify that the microphone stream is processed continuously. This demonstration runs on the computer without an external speech recognition service.",
+      "first_text_seconds": 0.9705096999532543,
+      "partial_before_stop": true,
+      "completion_after_stop_seconds": 0.4971858999924734,
+      "elapsed_seconds": 24.093545399955474,
+      "changed_text_updates": 18,
+      "update_gap_p95_seconds": 2.3938721399987117,
+      "decode_sum_seconds": 5.089,
+      "emotion_updates": 6,
+      "emotion_errors": [],
+      "S": 0,
+      "D": 0,
+      "I": 0,
+      "N": 48,
+      "wer": 0.0,
+      "errors": []
+    },
+    {
+      "condition": "noise_10dB",
+      "repeat": 1,
+      "seed": 20260915,
+      "snr_db": 10.000000000445189,
+      "hypothesis": "Good morning everyone. Today we are testing a local speech recognition application. The transcript should appear while I am still speaking. We can continue with another other sentence to verify that the microphone stream is processed continuously. This demonstration The vibration runs on the computer without an external speech recognition service.",
+      "first_text_seconds": 0.9863793000113219,
+      "partial_before_stop": true,
+      "completion_after_stop_seconds": 0.33725859998958185,
+      "elapsed_seconds": 23.915182600030676,
+      "changed_text_updates": 18,
+      "update_gap_p95_seconds": 2.5535835199756547,
+      "decode_sum_seconds": 5.374,
+      "emotion_updates": 6,
+      "emotion_errors": [],
+      "S": 0,
+      "D": 0,
+      "I": 3,
+      "N": 48,
+      "wer": 0.0625,
+      "errors": [
+        {
+          "type": "I",
+          "reference": "",
+          "hypothesis": "other"
+        },
+        {
+          "type": "I",
+          "reference": "",
+          "hypothesis": "the"
+        },
+        {
+          "type": "I",
+          "reference": "",
+          "hypothesis": "vibration"
+        }
+      ]
+    },
+    {
+      "condition": "noise_20dB",
+      "repeat": 2,
+      "seed": 20260916,
+      "snr_db": 20.000000001374318,
+      "hypothesis": "Good morning everyone. Today we are testing a local speech recognition application. The transcript should appear while I am still speaking. We can continue with another sentence to verify that the microphone stream is processed continuously. This demonstration runs on the computer without an external speech recognition service.",
+      "first_text_seconds": 0.9856071000103839,
+      "partial_before_stop": true,
+      "completion_after_stop_seconds": 0.45998689997941256,
+      "elapsed_seconds": 24.030613999988418,
+      "changed_text_updates": 18,
+      "update_gap_p95_seconds": 2.2445699200150555,
+      "decode_sum_seconds": 5.019,
+      "emotion_updates": 6,
+      "emotion_errors": [],
+      "S": 0,
+      "D": 0,
+      "I": 0,
+      "N": 48,
+      "wer": 0.0,
+      "errors": []
+    },
+    {
+      "condition": "noise_10dB",
+      "repeat": 2,
+      "seed": 20260916,
+      "snr_db": 9.999999999391353,
+      "hypothesis": "Good morning everyone. Today we are testing a local speech recognition application. The transcript should appear while I am still speaking. We can continue with another sentence to verify that the microphone stream is processed continuously. This demonstration The vibration runs on the computer without an external speech recognition service.",
+      "first_text_seconds": 1.01562759996159,
+      "partial_before_stop": true,
+      "completion_after_stop_seconds": 0.43539810000220314,
+      "elapsed_seconds": 24.013685099955183,
+      "changed_text_updates": 20,
+      "update_gap_p95_seconds": 1.3070680799894034,
+      "decode_sum_seconds": 5.213,
+      "emotion_updates": 6,
+      "emotion_errors": [],
+      "S": 0,
+      "D": 0,
+      "I": 2,
+      "N": 48,
+      "wer": 0.041666666666666664,
+      "errors": [
+        {
+          "type": "I",
+          "reference": "",
+          "hypothesis": "the"
+        },
+        {
+          "type": "I",
+          "reference": "",
+          "hypothesis": "vibration"
+        }
+      ]
+    },
+    {
+      "condition": "clean",
+      "repeat": 2,
+      "seed": 20260916,
+      "snr_db": null,
+      "hypothesis": "Good morning everyone. Today we are testing a local speech recognition application. The transcript should appear while I am still speaking. We can continue with another sentence to verify that the microphone stream is processed continuously. this demonstration runs on the computer without an external speech recognition service",
+      "first_text_seconds": 1.0080212999600917,
+      "partial_before_stop": true,
+      "completion_after_stop_seconds": 0.32676129997707903,
+      "elapsed_seconds": 23.896599099971354,
+      "changed_text_updates": 20,
+      "update_gap_p95_seconds": 1.3066293399839193,
+      "decode_sum_seconds": 5.584,
+      "emotion_updates": 6,
+      "emotion_errors": [],
+      "S": 0,
+      "D": 0,
+      "I": 0,
+      "N": 48,
+      "wer": 0.0,
+      "errors": []
+    }
+  ]
+}

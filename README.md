@@ -1,4 +1,163 @@
-# Speech Emotion Recognition with Whisper Large V3
+# Voice Journal — Local Speech Recognition and Emotion Reflection
+
+## Personal voice journal
+
+Speak in English, review and correct the live transcript, choose how you actually
+felt, and optionally save a journal entry. A live waveform and animated character
+respond to microphone audio and estimated vocal emotion.
+
+**Whisper Base** handles transcription; the saved **Whisper Large V3 encoder and
+trained emotion head** run in a separate local worker. Model estimates remain
+separate from self-reported feelings. This is a reflection aid, not a mental-health
+assessment. Emotion corpus accuracy below does not establish live-journal accuracy.
+
+Audio is not saved. Entries are saved **only on request, unencrypted in browser
+localStorage**, and can be reopened, downloaded or deleted. There are no accounts
+or cloud sync. Clearing browser data, private mode, or changing the ngrok origin
+can make entries unavailable; download anything you want to retain.
+
+## Architecture
+
+```mermaid
+flowchart TD
+    MIC[Browser microphone] --> AW[AudioWorklet: continuous mono PCM]
+    AW --> WAVE[Live waveform in browser]
+    AW --> WS[WebSocket: WS locally or WSS through ngrok]
+    WS --> API[FastAPI server on host PC]
+    API --> RESAMPLE[Stateful resampling to 16 kHz]
+    RESAMPLE --> ASRBUF[Rolling ASR buffer]
+    ASRBUF --> ASR[Whisper Base / faster-whisper]
+    ASR --> TEXT[Partial and confirmed transcript]
+    RESAMPLE --> SERBUF[Recent emotion window: up to 8 seconds]
+    SERBUF --> PIPE[Local process pipe]
+    PIPE --> SER[Separate PyTorch worker: Whisper Large V3 encoder]
+    SER --> HEAD[Saved normalization + emotion head + temperature scaling]
+    HEAD --> TONE[Emotion estimate and scores]
+    TEXT --> UI[Voice journal interface]
+    TONE --> UI
+    TONE --> CHARACTER[Animated character]
+    UI --> REVIEW[User edits words and chooses own feeling]
+    REVIEW --> SAVE{Explicit save choice}
+    SAVE --> LOCAL[Browser localStorage]
+    SAVE --> FILE[Downloaded JSON entry]
+```
+
+Both models run on the host PC, in separate Python processes and environments to
+separate CUDA dependencies. They still share GPU resources. ASR produces text
+before Finish; emotion updates less frequently from a bounded recent window.
+Original ASR text is retained separately from corrections in saved entries.
+
+No external speech-recognition API is used. Phone access through ngrok transports
+audio to the PC; it is not on-phone inference. Only one recording runs at a time.
+
+## Run locally on Windows
+
+### 1. Prerequisites and clone
+
+Install **Python 3.12**, **Git**, and **Git LFS**. The tested PC has an RTX 4060
+Laptop GPU with 8 GB VRAM and 32 GB RAM. CPU inference is supported but slower.
+Internet is required for initial dependency and model downloads.
+
+```powershell
+git lfs install
+git clone https://github.com/geraldadli/speech-emotion-recognition.git
+cd speech-emotion-recognition
+git lfs pull
+```
+
+Git LFS must download actual weights, not pointer files. The emotion encoder at
+`whisper_ser_deployment/encoder/model.safetensors` is about 1.27 GB. It is an
+encoder-only emotion bundle; the ASR setup downloads a separate complete model.
+
+### 2. Set up the models
+
+Run these scripts from the repository folder in order:
+
+```powershell
+& '.\Setup transcription.cmd'
+& '.\Setup emotion.cmd'
+```
+
+The first creates `.venv-transcription` and downloads the pinned Base ASR model
+into `local_transcription/models/base`. The second creates `.venv-emotion` and
+installs the emotion runtime. It can reuse existing Python 3.12 packages via
+`--system-site-packages`; it does not modify the ASR environment. The scripts pause
+when finished; press a key to continue.
+
+For NVIDIA-accelerated transcription, install the ASR runtime libraries:
+
+```powershell
+& '.\.venv-transcription\Scripts\python.exe' -m pip install -r local_transcription/requirements-gpu.txt
+```
+
+This supplies ASR CUDA 12/cuDNN 9 libraries. Emotion setup uses PyTorch 2.4.1 from
+the CUDA 11.8 wheel index in its own environment. A compatible NVIDIA driver is
+required. ASR tries CUDA then CPU; emotion uses CUDA when PyTorch reports support.
+
+### 3. Start and use the journal
+
+```powershell
+& '.\Start transcription.cmd'
+```
+
+Keep the terminal open and visit **http://127.0.0.1:8765** in Chrome or Edge.
+Wait for the models to load; ASR may become ready before the emotion worker.
+
+1. Click **Start speaking**, allow microphone access, and speak in English.
+2. Watch the live waveform and partial transcript; the character follows estimated tone.
+3. Click **Finish**, correct transcription mistakes, and choose your own feeling.
+4. Optionally add a note, then **Save on this device** or **Download entry**.
+5. Reopen saved entries under **Your entries**. Save before starting another recording.
+
+Press **Ctrl+C** in the terminal to stop. Kaggle and a Hugging Face token are not
+needed at runtime once the models have been downloaded.
+
+### Optional phone testing
+
+Run `ngrok http 8765` in another terminal and open its **HTTPS** URL on the phone.
+Keep default Host forwarding; the UI uses WSS automatically. Stop any PC recording
+before starting on the phone. The tunnel exposes this single-user prototype;
+close ngrok when testing ends.
+
+### Troubleshooting
+
+- **Missing emotion weights:** run `git lfs pull`; check for actual files, not pointers.
+- **Missing ASR model:** rerun `Setup transcription.cmd`.
+- **CUDA/DLL errors:** install the GPU requirements above. For CPU testing, set
+  `$env:ASR_DEVICE='cpu'` and `$env:EMOTION_DEVICE='cpu'` before launching.
+- **Emotion unavailable:** inspect the terminal, rerun `Setup emotion.cmd`, then
+  restart. Large model startup may take time.
+- **Microphone unavailable:** allow browser access; phone access requires HTTPS.
+- **Connection busy:** only one recording is supported across all devices.
+- **Entries missing:** use the same browser profile and origin; there is no sync.
+
+## Verification and ASR evaluation
+
+Run Python checks from the repository folder:
+
+```powershell
+& '.\.venv-transcription\Scripts\python.exe' -m unittest discover -s local_transcription -p 'test_*.py'
+```
+
+With Node.js installed, check the browser-side logic:
+
+```powershell
+node local_transcription/test_journal.cjs
+node local_transcription/test_waveform.cjs
+node local_transcription/test_mascot.cjs
+```
+
+The [preliminary ASR report](local_transcription/evaluation/REPORT.md) compares clean
+speech with 20 dB and 10 dB synthetic noise. It uses one synthetic utterance and
+two runs per condition, not a real-user study. See the
+[evaluation instructions](local_transcription/evaluation/README.md) to reproduce
+it or supply a human recording and independently checked reference.
+
+See [runtime details](local_transcription/README.md) and
+[remaining project criteria](local_transcription/PROJECT_CRITERIA.md). Real-user
+testing, broader ASR evaluation, and live emotion validation remain outstanding.
+
+## Emotion training and saved model
 
 An eight-class speech emotion recognition project built with a frozen **Whisper Large V3 audio encoder** and a supervised neural classifier. It combines RAVDESS, CREMA-D, TESS, and SAVEE in an **OSEMN** workflow, with speaker-separated evaluation and an offline model export.
 

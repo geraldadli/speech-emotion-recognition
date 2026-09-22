@@ -38,7 +38,16 @@ def load_audio(path, config):
         if result.returncode: raise ValueError('Audio decoding failed')
         mono = np.frombuffer(result.stdout, dtype='<f4').copy()
         clipping = float(np.mean(np.abs(mono) >= .999)) if len(mono) else 0.
+    return prepare_waveform(mono, config, clipping)
+
+
+def prepare_waveform(mono, config, clipping=None):
+    """Shared cleaning for decoded files and in-memory mono 16 kHz microphone audio."""
+    mono = np.asarray(mono, dtype=np.float32)
+    sr_target = config['sample_rate']
+    if mono.ndim != 1: raise ValueError('Expected mono audio')
     if not len(mono) or not np.isfinite(mono).all(): raise ValueError('Nonfinite or empty audio')
+    if clipping is None: clipping = float(np.mean(np.abs(mono) >= .999))
     mono = np.asarray(mono - mono.mean(), dtype=np.float32)
     duration = len(mono) / sr_target
     rms = float(np.sqrt(np.mean(mono.astype(np.float64)**2)))
@@ -166,6 +175,11 @@ class EmotionPredictor:
         self.head.eval().to(device)
     def predict(self, audio_path):
         wave, stats = load_audio(audio_path,self.config)
+        return self._predict_clean(wave, stats)
+    def predict_waveform(self, mono):
+        wave, stats = prepare_waveform(mono, self.config)
+        return self._predict_clean(wave, stats)
+    def _predict_clean(self, wave, stats):
         x = self.features.extract_many([wave])
         x = normalize_features(x,self.mean,self.scale,self.config['normalization_clip'])
         with torch.inference_mode(): logits = self.head(torch.from_numpy(x).to(self.device)).float().cpu().numpy()

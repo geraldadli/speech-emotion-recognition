@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Voice journal</title>
+<style>
+:root{font-family:system-ui,-apple-system,sans-serif;color:#1f256e;background:#f1f8fa;color-scheme:light}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 15% 0%,#d2e8ee,transparent 55%),radial-gradient(ellipse at 90% 55%,#dbedf2,transparent 55%),#f3f9fb}
+main{position:relative;z-index:1;max-width:820px;margin:auto;padding:38px 24px}header{position:relative;padding:18px 0 12px;margin-bottom:20px}h1{font-size:clamp(30px,5vw,45px);letter-spacing:-.045em;margin:16px 0 10px;line-height:1.12}h2{font-size:18px}p{line-height:1.65;color:#2e6fa0}.eyebrow{display:inline-block;font-size:11px;letter-spacing:.16em;font-weight:800;color:#2e6fa0;background:#e8f4f7;border:1px solid #cae5eb;border-radius:30px;padding:8px 14px}
+.panel{position:relative;background:#fbfdfe;border:1px solid #d5eaef;border-radius:26px;padding:28px;box-shadow:0 10px 35px #2e6fa00d}.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center}button,select,textarea{font:inherit;color:#2e6fa0;border:1px solid #cae4eb;border-radius:13px;background:#fbfdfe}button{padding:12px 18px;font-weight:650;cursor:pointer;transition:background .18s,transform .18s,box-shadow .18s}button:hover:not(:disabled){background:#f1f8fa;transform:translateY(-1px)}button:disabled{opacity:.5;cursor:default}button:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid #2e6fa0;outline-offset:4px}#start,#saveEntry{background:#2e6fa0;color:white;border-color:#2e6fa0;box-shadow:0 4px 10px #2e6fa026}#start:hover:not(:disabled),#saveEntry:hover:not(:disabled){background:#2e6fa0}#stop{background:#f3f9fb;color:#2e6fa0}select{padding:12px;max-width:100%}textarea{width:100%;padding:12px;resize:vertical;min-height:80px}
+#status{margin:20px 0 10px;min-height:24px;font-weight:600}#status.error{color:#2e6fa0}.live::before{content:'';display:inline-block;width:9px;height:9px;border-radius:50%;background:#2e6fa0;margin-right:9px;animation:pulse 1.5s infinite}.hint{font-size:13px;margin:8px 0 14px}.meter{height:5px;background:#ecf5f8;border-radius:6px;overflow:hidden;margin-bottom:16px}.meter div{height:100%;width:0;background:#2e6fa0;transition:width .1s}.transcript{min-height:155px;font-size:20px;line-height:1.85;white-space:pre-wrap;overflow-wrap:anywhere;padding:18px 0;border-top:1px solid #e9f4f7}#partial{color:#2e6fa0;background:#ebf5f7;border-radius:3px}#empty{color:#2e6fa0}#duration{font-size:12px;color:#2e6fa0}
+.emotion{margin-top:20px;padding:20px;background:#f6fafc;border:1px solid #e3f1f5;border-radius:18px}.emotion h2{margin-top:0}.emotion strong{color:#2e6fa0;font-size:25px}.scores{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}.score{font-size:13px}.score progress{width:100%;accent-color:#2e6fa0}#emotionInfo{font-size:13px}details{margin-top:16px;font-size:13px;color:#2e6fa0}summary{cursor:pointer;padding:3px 0}#metrics{line-height:1.8}.feedback{background:#f8fbfc;border:1px solid #e3f1f5;border-radius:18px;padding:20px;margin-top:20px}.feedback label{display:block;font-size:14px;margin:14px 0 8px}.feedback select{width:100%;margin-bottom:8px}.feedback .controls{margin-top:14px}#reflection[hidden]{display:none}#entries p{overflow-wrap:anywhere}#entries button{margin:8px 8px 0 0}.privacy{font-size:12px;text-align:center;color:#2e6fa0;margin-top:22px}
+.emoji-sky{position:fixed;inset:0;overflow:hidden;pointer-events:none;user-select:none;z-index:0}.emoji-sky span{position:absolute;font-size:clamp(30px,4vw,53px);opacity:.38;animation:drift 8s ease-in-out infinite;filter:drop-shadow(0 5px 6px #2e6fa012)}.emoji-sky span:nth-child(2n){animation-delay:-3s}.emoji-sky span:nth-child(3n){animation-delay:-5s}.sticker{display:inline-flex;align-items:center;justify-content:center;pointer-events:none;user-select:none;background:#fbfdfe;border:3px solid white;border-radius:18px;box-shadow:0 3px 0 #c7e3ea,0 5px 14px #2e6fa025;font-size:32px;padding:9px;transform:rotate(10deg)}.header-stickers{position:absolute;right:8px;top:0;display:flex;gap:12px;pointer-events:none}.header-stickers .sticker:first-child{transform:rotate(-12deg)}.entry-sticker{position:absolute;right:22px;top:-15px;font-size:24px;padding:6px;transform:rotate(9deg)}
+@keyframes pulse{50%{opacity:.4}}@keyframes drift{50%{transform:translateY(-10px) rotate(7deg)}}@media(max-width:550px){main{padding:24px 14px}header{padding-top:8px}.panel{padding:20px;border-radius:22px}h1{max-width:290px}.header-stickers{top:-6px;right:0;gap:4px}.header-stickers .sticker{font-size:21px;padding:5px}.emoji-sky span{opacity:.18;font-size:32px}.emotion,.feedback{padding:16px}.controls button{flex:1}.transcript{font-size:18px}.eyebrow{font-size:10px;padding:7px 10px}}
+@media(prefers-reduced-motion:reduce){*,*::before{animation:none!important;transition:none!important}}
+
+/* Decorative stone and stage layers never intercept input. */
+body{background:radial-gradient(ellipse at 50% 22%,#eff7f9 0%,#d4eaef 55%,#b8dce5 100%)}
+.panel{background-color:#f9fcfd;background-image:radial-gradient(ellipse at 28% 0%,#fbfdfe 0%,#fbfdfe66 42%,transparent 72%),url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22900%22%20height%3D%22900%22%20viewBox%3D%220%200%20900%20900%22%3E%3Cfilter%20id%3D%22warp%22%3E%3CfeTurbulence%20type%3D%22fractalNoise%22%20baseFrequency%3D%22.009%20.02%22%20numOctaves%3D%223%22%20seed%3D%228%22%20result%3D%22n%22/%3E%3CfeDisplacementMap%20in%3D%22SourceGraphic%22%20in2%3D%22n%22%20scale%3D%2248%22%20xChannelSelector%3D%22R%22%20yChannelSelector%3D%22G%22/%3E%3C/filter%3E%3Cg%20fill%3D%22none%22%20filter%3D%22url%28%23warp%29%22%3E%3Cg%20stroke%3D%22%232e6fa0%22%20opacity%3D%22.19%22%3E%3Cpath%20stroke-width%3D%222%22%20d%3D%22M-80%20100%20Q140%20250%20260%20175%20T550%20390%20T980%20450%20M-50%20680%20Q180%20500%20320%20620%20T650%20700%20T950%20850%22/%3E%3Cpath%20stroke-width%3D%22.8%22%20d%3D%22M30%20160%20Q100%20250%20250%20195%20L345%20310%20Q470%20325%20540%20415%20T900%20500%20M200%20550%20Q340%20450%20410%20350%20M320%20640%20Q390%20720%20540%20670%20T900%20780%22/%3E%3C/g%3E%3Cg%20stroke%3D%22%2349a4bb%22%20opacity%3D%22.23%22%3E%3Cpath%20stroke-width%3D%2212%22%20d%3D%22M-80%20108%20Q140%20260%20260%20185%20T550%20400%20T980%20460%20M-50%20687%20Q180%20510%20320%20630%20T650%20710%20T950%20860%22/%3E%3C/g%3E%3Cpath%20stroke%3D%22%2315d8b3%22%20opacity%3D%22.22%22%20stroke-width%3D%22.8%22%20d%3D%22M-80%2092%20Q140%20242%20260%20170%20T550%20383%20T980%20440%22/%3E%3C/g%3E%3C/svg%3E");background-size:100% 100%,900px 900px;border:1px solid #cbe5ec;box-shadow:inset 0 2px 0 #fbfdfe,inset 0 -4px 0 #b8dce54d,0 3px 0 #a5d2de,0 18px 42px #2f39a929;border-radius:22px}
+.emotion,.feedback{background:linear-gradient(120deg,#fafdfded,#e9f4f7d9);border:1px solid #cae4eb;box-shadow:inset 0 1px 0 white}
+.stage{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;user-select:none}
+.curtain{position:absolute;top:0;bottom:0;width:clamp(34px,13vw,190px);background:repeating-linear-gradient(90deg,#1f256e 0%,#2e6fa0 14%,#2e6fa0 26%,#2e6fa0 40%,#1f256e 53%,#2e6fa0 69%,#1f256e 86%,#1f256e 100%);box-shadow:inset 0 0 30px #1f256e88;filter:drop-shadow(5px 8px 10px #1f256e35)}
+.curtain.left{left:0;clip-path:polygon(0 0,100% 0,94% 8%,79% 19%,52% 32%,34% 43%,24% 50%,32% 64%,47% 81%,60% 100%,0 100%)}
+.curtain.right{right:0;transform:scaleX(-1);clip-path:polygon(0 0,100% 0,94% 8%,79% 19%,52% 32%,34% 43%,24% 50%,32% 64%,47% 81%,60% 100%,0 100%)}
+.curtain::after{content:'';position:absolute;left:-5%;top:48%;width:44%;height:10px;border-radius:40%;background:linear-gradient(#c8e4eb,#2e6fa0,#a5d2dd);transform:rotate(-12deg);box-shadow:0 2px 5px #1f256e99}
+.spotlight{position:absolute;top:-20px;width:44vw;height:90vh;background:linear-gradient(180deg,#eef7f9aa,#f9fcfd50 50%,transparent);clip-path:polygon(48% 0,52% 0,100% 100%,0 100%);filter:blur(13px);mix-blend-mode:screen;transform-origin:50% 0}
+.spotlight.left{left:2%;transform:rotate(-18deg)}.spotlight.right{right:2%;transform:rotate(18deg)}
+.emoji-sky{z-index:0}.emoji-sky span{opacity:.25}main{z-index:1}.eyebrow{border-color:#89c4d3;background:#f3f9fb}.sticker{border-color:#f7fbfc;box-shadow:0 3px 0 #b4dae3,0 5px 14px #2f39a925}
+@media(min-width:1100px){main{max-width:840px}}@media(max-width:550px){.curtain{width:32px;opacity:.8}.spotlight{width:65vw;opacity:.6}.panel{border-radius:20px;background-size:100% 100%,600px 600px}main{padding-left:20px;padding-right:20px}}
+
+.waveform-wrap{margin:12px 0 18px;padding:12px 14px;background:linear-gradient(125deg,#f5fafbed,#e8f4f7d9);border:1px solid #d0e7ed;border-radius:16px;box-shadow:inset 0 1px 0 white}.waveform-heading{display:flex;justify-content:space-between;font-size:11px;letter-spacing:.06em;color:#2e6fa0;margin-bottom:6px}#waveform{display:block;width:100%;height:88px}#waveformState{letter-spacing:0;color:#2e6fa0}@media(max-width:550px){#waveform{height:72px}}
+.waveform-wrap{padding:14px 18px;background:#1f256e;border:1px solid #2e6fa0;border-radius:20px;box-shadow:inset 0 1px 0 #2e6fa055,0 8px 22px #1f256e18}.waveform-heading{color:#d3e9ef;font-size:10px;margin-bottom:0}#waveformState{color:#c9e4eb}.waveform-stage{display:flex;align-items:center;gap:4px;min-width:0;min-height:166px}.mic-aura{position:relative;flex:0 0 106px;height:106px;display:grid;place-items:center;border-radius:50%;background:radial-gradient(circle at 35% 68%,#2e6fa032,transparent 62%),linear-gradient(130deg,#2e6fa066,#2e6fa04d);pointer-events:none;user-select:none}.mic-aura::before{content:'';position:absolute;inset:23px;border-radius:50%;background:radial-gradient(circle at 65% 25%,#2e6fa0b8,transparent 68%),radial-gradient(circle at 35% 85%,#2e6fa0c9,transparent 65%);box-shadow:0 0 24px #2e6fa055}.mic-aura svg{position:relative;width:44px;height:58px;filter:drop-shadow(0 0 7px #b0d8e288)}#waveform{flex:1;min-width:0;width:calc(100% - 110px);height:150px}@media(max-width:550px){.waveform-wrap{padding:12px}.waveform-stage{min-height:128px}.mic-aura{flex-basis:72px;height:72px}.mic-aura::before{inset:14px}.mic-aura svg{width:32px;height:43px}#waveform{width:calc(100% - 76px);height:114px}.waveform-heading{font-size:9px}}
+
+/* Shared palette: exact reference colors plus readable neutral tints. */
+:root{--indigo:#2F39A9;--blue:#2E6FA0;--teal:#49A4BB;--mint:#15D8B3;--ink:#202B55;--muted:#405F75;--surface:#F5FAFC;--line:#C6DEE5;color:var(--ink);background:var(--surface)}
+body{background:radial-gradient(ellipse at 50% 20%,#F5FAFC 0%,#D7EEF1 54%,#B8D8E5 100%)}
+h1,h2{color:var(--indigo)}p,details,.privacy,#duration{color:var(--muted)}
+.eyebrow{color:var(--indigo);background:#E5F1F6;border-color:var(--teal)}
+button,select,textarea{color:var(--blue);border-color:var(--line);background:white}button:hover:not(:disabled){background:#E1F5F1}
+#start,#saveEntry{background:var(--indigo);border-color:var(--indigo);color:white;box-shadow:0 4px 12px #2F39A926}
+#start:hover:not(:disabled),#saveEntry:hover:not(:disabled){background:var(--blue);border-color:var(--blue)}
+#stop{color:var(--indigo);background:#E2F8F2;border-color:var(--teal)}
+button:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline-color:var(--indigo)}
+#status.error{color:var(--indigo);border-left:3px solid var(--blue);padding-left:10px}.live::before,.meter div{background:var(--mint)}
+.panel{background-color:#FAFCFD;border-color:var(--line);box-shadow:inset 0 2px 0 white,inset 0 -4px 0 #49A4BB18,0 3px 0 #2E6FA033,0 18px 42px #2F39A91A}
+.emotion,.feedback{background:linear-gradient(120deg,#F4FAFC,#E8F7F3);border-color:var(--line)}
+.emotion strong{color:var(--indigo)}.score progress{accent-color:var(--blue)}#partial{color:var(--indigo);background:#DDF7EF}#empty{color:#526D80}
+.curtain{background:repeating-linear-gradient(90deg,var(--indigo) 0%,var(--blue) 17%,var(--teal) 28%,var(--blue) 40%,var(--indigo) 53%,var(--blue) 72%,var(--indigo) 100%);box-shadow:inset 0 0 30px #202B5570}
+.curtain::after{background:linear-gradient(#C9FFF1,var(--mint),var(--teal));box-shadow:0 2px 5px #2F39A955}
+.spotlight{background:linear-gradient(180deg,#E6FFF6AA,#E7F6FA50 50%,transparent)}
+.sticker{border-color:#F5FAFC;background:#F5FAFC;box-shadow:0 3px 0 #49A4BB55,0 5px 14px #2E6FA025}
+.waveform-wrap{background:var(--indigo);border-color:var(--blue);box-shadow:inset 0 1px 0 #49A4BB55,0 8px 22px #2F39A925}
+.waveform-heading,#waveformState{color:#E1F7F4}
+.mic-aura{background:radial-gradient(circle at 35% 68%,#15D8B344,transparent 62%),linear-gradient(130deg,#49A4BB55,#2E6FA080)}
+.mic-aura::before{background:radial-gradient(circle at 65% 25%,#49A4BBDD,transparent 68%),radial-gradient(circle at 35% 85%,#15D8B3CC,transparent 65%);box-shadow:0 0 24px #15D8B355}
+.mic-aura svg{filter:drop-shadow(0 0 7px #15D8B388)}
+
+/* One mascot, native transitions; expressions mirror model labels, not actual feelings. */
+.tone-companion{display:flex;align-items:center;gap:24px;margin:14px 0;min-height:148px}.mascot{position:relative;flex:0 0 130px;height:132px;pointer-events:none;user-select:none}.mascot-face{position:absolute;inset:4px 7px 14px;border-radius:46% 46% 43% 43%;background:linear-gradient(145deg,#b5fff0,var(--mint));border:2px solid #49a4bb;box-shadow:inset 0 5px 0 #ffffff88,0 8px 0 #2e6fa019;transition:transform .65s ease,background .65s ease}.mascot-shadow{position:absolute;bottom:0;left:22px;right:22px;height:9px;background:#2f39a921;border-radius:50%}.mascot-eye{position:absolute;top:43px;width:10px;height:15px;background:var(--indigo);border-radius:50%;transition:height .6s,transform .6s,top .6s}.mascot-eye.left{left:29px}.mascot-eye.right{right:29px}.mascot-brow{position:absolute;top:29px;width:19px;height:4px;border-radius:4px;background:var(--indigo);transition:transform .6s,top .6s}.mascot-brow.left{left:23px}.mascot-brow.right{right:23px}.mascot-mouth{position:absolute;left:50%;top:76px;width:25px;height:4px;transform:translateX(-50%);border:2px solid var(--indigo);border-radius:12px;background:transparent;transition:width .6s,height .6s,border-radius .6s,transform .6s,background .6s,top .6s}.mascot-tear{position:absolute;top:60px;width:9px;height:15px;border-radius:60% 40% 60% 40%;background:var(--blue);opacity:0;transition:opacity .6s}.mascot-tear.left{left:29px}.mascot-tear.right{right:29px}
+.mascot[data-expression=idle]{opacity:.65}.mascot[data-expression=idle] .mascot-brow{transform:translateY(3px)}
+.mascot[data-expression=calm] .mascot-eye{height:4px;top:50px}.mascot[data-expression=calm] .mascot-mouth{height:12px;border-top:0;border-radius:0 0 20px 20px}
+.mascot[data-expression=happy] .mascot-mouth{width:35px;height:21px;border-radius:4px 4px 25px 25px;background:var(--indigo);top:71px}.mascot[data-expression=happy] .mascot-face{animation:companion-bob 2.2s ease-in-out infinite}.mascot[data-expression=happy] .mascot-brow{top:24px}
+.mascot[data-expression=sad] .mascot-mouth{height:12px;border-bottom:0;border-radius:25px 25px 0 0}.mascot[data-expression=sad] .mascot-brow.left{transform:rotate(-20deg)}.mascot[data-expression=sad] .mascot-brow.right{transform:rotate(20deg)}.mascot[data-expression=sad] .mascot-tear{opacity:.85;animation:companion-tear 2s ease-in-out infinite}.mascot[data-expression=sad] .mascot-tear.right{animation-delay:.6s}
+.mascot[data-expression=fear] .mascot-eye,.mascot[data-expression=surprise] .mascot-eye{height:22px;top:39px}.mascot[data-expression=fear] .mascot-mouth,.mascot[data-expression=surprise] .mascot-mouth{width:18px;height:23px;top:70px;border-radius:50%;background:var(--indigo)}.mascot[data-expression=fear] .mascot-brow.left{transform:rotate(-17deg) translateY(-5px)}.mascot[data-expression=fear] .mascot-brow.right{transform:rotate(17deg) translateY(-5px)}.mascot[data-expression=surprise] .mascot-brow{top:19px}
+.mascot[data-expression=angry] .mascot-brow.left{transform:rotate(24deg) translateY(6px)}.mascot[data-expression=angry] .mascot-brow.right{transform:rotate(-24deg) translateY(6px)}.mascot[data-expression=angry] .mascot-eye{height:10px;top:47px}.mascot[data-expression=angry] .mascot-mouth{width:30px;transform:translateX(-50%) rotate(-5deg)}
+.mascot[data-expression=disgust] .mascot-brow.left{transform:rotate(-16deg) translateY(-4px)}.mascot[data-expression=disgust] .mascot-eye.right{height:5px;top:49px}.mascot[data-expression=disgust] .mascot-mouth{width:29px;height:9px;transform:translateX(-50%) rotate(-16deg);border-radius:3px 14px 3px 14px}.mascot[data-expression=disgust] .mascot-face{transform:rotate(-5deg)}
+/* Animate solid color beneath a fixed highlight so anger fades smoothly. */
+.tone-companion{margin-top:46px;gap:30px}
+.mascot-face{background:linear-gradient(145deg,#ffffff99,transparent),var(--mint);transition:transform .65s ease,background-color .85s ease,border-color .85s ease}
+.tone-companion:has(.mascot[data-expression=angry]){flex-wrap:wrap;justify-content:center;gap:12px;background:#fff;border-radius:16px;padding:12px}
+.mascot[data-expression=angry]{flex:0 1 300px;height:180px;min-width:0}
+.mascot[data-expression=angry] .mascot-face{left:calc(50% - 58px);right:auto;top:34px;bottom:auto;width:116px;height:114px;background-image:none;background-color:#ff695b;border:3px solid var(--indigo);box-shadow:none}
+.mascot[data-expression=angry] .mascot-shadow{display:none}
+.mascot-rage{display:none;position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.mascot[data-expression=angry] .mascot-rage{display:block}
+.rage-steam{fill:#fff;stroke:var(--indigo);stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round;transform-box:view-box;transform-origin:94px 90px;animation:companion-steam .65s ease-out infinite}
+.rage-lines{fill:none;stroke:#2e8ccd;stroke-width:3;stroke-linecap:round;stroke-dasharray:6 7;animation:companion-rage-lines .4s linear infinite}
+.mascot[data-expression=sad] .mascot-tear{top:57px;width:12px;height:65px;border-radius:3px 3px 8px 8px;background:repeating-linear-gradient(180deg,#43b8ef 0 10px,#baf4ff 13px,#43b8ef 22px);background-size:100% 22px;box-shadow:inset 2px 0 0 #ffffff77,0 2px 3px #2e6fa033;opacity:.9;animation:companion-waterfall .55s linear infinite}
+.mascot[data-expression=fear] .mascot-face{animation:companion-shake .16s linear infinite}
+.mascot[data-expression=calm] .mascot-face{animation:companion-meditate 4s ease-in-out infinite}
+.mascot[data-expression=calm] .mascot-shadow{animation:companion-breathe 4s ease-in-out infinite}
+.mascot[data-expression=calm]::before,.mascot[data-expression=calm]::after{content:'';position:absolute;bottom:12px;width:48px;height:18px;border:2px solid #49a4bb;border-radius:50%;background:#a5f5df}
+.mascot[data-expression=calm]::before{left:20px;transform:rotate(18deg)}.mascot[data-expression=calm]::after{right:20px;transform:rotate(-18deg)}
+.mascot-rainbow{position:absolute;left:50%;top:-53px;transform:translateX(-50%);width:116px;height:64px;overflow:visible;display:none}
+.mascot[data-expression=happy] .mascot-rainbow{display:block}
+.rainbow-spark{fill:#fffbe0;stroke:#cc8c25;stroke-width:1.5px;offset-path:path('M 10 58 A 48 48 0 0 1 106 58');animation:companion-rainbow 2.4s ease-in-out infinite alternate}
+@keyframes companion-bob{50%{transform:translateY(-4px) rotate(2deg)}}
+@keyframes companion-steam{0%{transform:translateX(3px) scale(.82)}65%{transform:translateX(-7px) scale(1.04)}100%{transform:translateX(-10px) scale(1);opacity:.65}}
+@keyframes companion-rage-lines{to{stroke-dashoffset:-13}}
+@keyframes companion-waterfall{to{background-position:0 22px}}
+@keyframes companion-shake{0%,100%{transform:translateX(-2px) rotate(-1deg)}50%{transform:translateX(2px) rotate(1deg)}}
+@keyframes companion-meditate{0%,100%{transform:translateY(-5px)}50%{transform:translateY(-15px)}}
+@keyframes companion-breathe{0%,100%{transform:scaleX(.9);opacity:.8}50%{transform:scaleX(.65);opacity:.4}}
+@keyframes companion-rainbow{from{offset-distance:0%}to{offset-distance:100%}}
+@media(prefers-reduced-motion:reduce){.mascot::before,.mascot::after,.mascot *::before,.mascot *::after{animation:none!important;transition:none!important}.rainbow-spark{offset-distance:50%}}
+@media(max-width:550px){.tone-companion{gap:12px}.mascot{flex-basis:116px}.mascot-face{left:0;right:0}.tone-companion strong{font-size:20px}}@media(prefers-reduced-motion:reduce){.mascot *{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body><div class="stage" aria-hidden="true"><div class="spotlight left"></div><div class="spotlight right"></div><div class="curtain left"></div><div class="curtain right"></div></div><div class="emoji-sky" aria-hidden="true"><span style="left:3%;top:5%">☁️</span><span style="right:4%;top:9%">😊</span><span style="left:7%;top:30%">💙</span><span style="right:6%;top:37%">✨</span><span style="left:2%;top:55%">😌</span><span style="right:3%;top:65%">💭</span><span style="left:8%;top:80%">🫧</span><span style="right:9%;top:89%">🌈</span><span style="left:28%;top:95%">⭐</span><span style="right:27%;top:2%">🦋</span></div><main>
+<header><div class="header-stickers" aria-hidden="true"><span class="sticker">🎙️</span><span class="sticker">💙</span></div><span class="eyebrow">VOICE JOURNAL</span><h1>A moment for yourself.</h1><p>Say what’s on your mind. Choose what it means to you.</p></header>
+<section class="panel"><p class="hint">Try: “One moment that stayed with me today…”</p>
+<div class="controls"><button id="start" disabled>Start speaking</button><button id="stop" disabled>Finish</button><select id="language" hidden><option value="en">English</option></select></div>
+<div id="status" role="status" aria-live="polite">Getting ready…</div><div class="waveform-wrap"><div class="waveform-heading"><span>MICROPHONE WAVEFORM</span><span id="waveformState">Ready when you are</span></div><div class="waveform-stage"><div class="mic-aura" aria-hidden="true"><svg viewBox="0 0 44 60" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="micGlow" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#49A4BB"/><stop offset="1" stop-color="#15D8B3"/></linearGradient></defs><rect x="12" y="3" width="20" height="36" rx="10" fill="url(#micGlow)"/><path d="M7 28v4a15 15 0 0 0 30 0v-4M22 47v10M13 57h18" fill="none" stroke="url(#micGlow)" stroke-width="3" stroke-linecap="round"/></svg></div><canvas id="waveform" role="img" aria-label="Live microphone waveform. Symmetric bars show recent sound amplitude; short marks indicate silence."></canvas></div></div><div class="meter" hidden><div id="level"></div></div><p class="hint">Speak in English. Highlighted words may change.</p>
+<div class="transcript" role="log" aria-live="polite" aria-label="Live journal transcript"><span id="empty">Your words will appear here.</span><span id="confirmed"></span><span id="partial"></span></div><span id="duration">0.0 seconds captured</span>
+<section class="emotion"><h2>A hint from your voice</h2><div class="tone-companion"><div id="toneMascot" class="mascot" data-expression="idle" aria-hidden="true"><div class="mascot-shadow"></div><svg class="mascot-rage" viewBox="0 0 300 180" aria-hidden="true"><path class="rage-lines" d="m112 35 -22 -23m45 17 -7 -23m37 23 7 -23m23 29 22 -23M83 51 54 33m163 18 29 -18M78 136l-27 19m171 -19 27 19m-138 -3 -16 20m74 -20 16 20"/><g class="rage-steam"><path d="M96 84 75 73C79 58 66 47 53 54C46 34 21 39 21 57C3 54 -3 76 10 86C-2 102 12 123 29 116C37 134 62 130 64 111C78 115 86 104 78 96L96 94Z"/><path d="M18 75q7 -10 17 -3M29 103q12 8 20 -3M57 64q-7 3 -6 11" fill="none"/></g><g transform="translate(300 0) scale(-1 1)"><g class="rage-steam"><path d="M96 84 75 73C79 58 66 47 53 54C46 34 21 39 21 57C3 54 -3 76 10 86C-2 102 12 123 29 116C37 134 62 130 64 111C78 115 86 104 78 96L96 94Z"/><path d="M18 75q7 -10 17 -3M29 103q12 8 20 -3M57 64q-7 3 -6 11" fill="none"/></g></g></svg><div class="mascot-face"><svg class="mascot-rainbow" viewBox="0 0 116 64" aria-hidden="true"><g fill="none" stroke-width="4"><path stroke="#ef6464" d="M10 58a48 48 0 0 1 96 0"/><path stroke="#ffa54b" d="M14 58a44 44 0 0 1 88 0"/><path stroke="#f4d84b" d="M18 58a40 40 0 0 1 80 0"/><path stroke="#61c97c" d="M22 58a36 36 0 0 1 72 0"/><path stroke="#51b9e8" d="M26 58a32 32 0 0 1 64 0"/><path stroke="#6574d9" d="M30 58a28 28 0 0 1 56 0"/><path stroke="#b77cdb" d="M34 58a24 24 0 0 1 48 0"/></g><path class="rainbow-spark" d="M0 -7 2 -2 7 0 2 2 0 7 -2 2 -7 0 -2 -2Z"/></svg><i class="mascot-brow left"></i><i class="mascot-brow right"></i><i class="mascot-eye left"></i><i class="mascot-eye right"></i><i class="mascot-mouth"></i><i class="mascot-tear left"></i><i class="mascot-tear right"></i></div></div><strong id="emotionLabel" role="status" aria-live="polite">🎙️ Waiting for speech</strong></div><p class="hint">Estimated tone of recent speech. Only you can say how you feel.</p><details><summary>About this estimate</summary><p id="emotionInfo">Speak for a few seconds to begin.</p><div class="scores" id="emotionScores"></div><p>Trained on acted English speech. This is not a mental-health assessment.</p></details></section>
+<section id="reflection" class="feedback" hidden><h2>Make this entry yours</h2><label for="journalWords">Your words · edit any transcription mistakes</label><textarea id="journalWords" rows="5"></textarea><label for="feeling">How did you feel?</label><select id="feeling"><option value="">Choose your own feeling</option><option>😊 Happy</option><option>😌 Calm</option><option>😔 Sad</option><option>😠 Angry</option><option>😨 Afraid</option><option>😮 Surprised</option><option>😐 Neutral</option><option>💭 Mixed / another feeling</option><option>Not sure / prefer not to say</option></select><label for="note">Anything you want to remember? · optional</label><textarea id="note" rows="2" maxlength="2000"></textarea><div class="controls"><button id="saveEntry">Save on this device</button><button id="downloadEntry">Download entry</button></div><p id="saveStatus" role="status" aria-live="polite"></p><p class="hint">Saved entries stay in this browser. Save or download before starting again.</p></section>
+<details><summary>Technical details</summary><p id="metrics">No measurements yet.</p><button id="saveMetrics" disabled>Save measurements</button></details></section>
+<section class="panel" style="margin-top:18px"><span class="sticker entry-sticker" aria-hidden="true">📔</span><h2>Your entries</h2><div id="entries">No saved entries yet.</div></section>
+<p class="privacy">Audio is not saved. Entries are stored only when you choose, unencrypted in this browser.<br>Inference runs on the host PC; phone audio passes through ngrok. No cloud journal sync.</p></main>
+<script>
+const $ = id => document.getElementById(id);
+// Waveform: a two-second min/max envelope of the existing PCM stream.
+let waveBins=[],waveCapacity=375,waveFrame=null,waveActive=false,waveLastPaint=0;
+const waveCanvas=$('waveform'),waveContext=waveCanvas.getContext('2d');
+const reduceWaveMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
+function drawWaveform(){
+  if(!waveContext)return;
+  const width=waveCanvas.clientWidth,height=waveCanvas.clientHeight;
+  if(!width||!height)return;
+  const ratio=Math.min(window.devicePixelRatio||1,2);
+  const pixelWidth=Math.round(width*ratio),pixelHeight=Math.round(height*ratio);
+  if(waveCanvas.width!==pixelWidth||waveCanvas.height!==pixelHeight){waveCanvas.width=pixelWidth;waveCanvas.height=pixelHeight;}
+  waveContext.setTransform(ratio,0,0,ratio,0,0);waveContext.clearRect(0,0,width,height);
+  const gradient=waveContext.createLinearGradient(0,0,0,height);
+  gradient.addColorStop(0,'#49A4BB');gradient.addColorStop(.4,'#49A4BB');gradient.addColorStop(.6,'#15D8B3');gradient.addColorStop(1,'#15D8B3');
+  waveContext.strokeStyle=gradient;waveContext.lineWidth=2.5;waveContext.lineCap='round';
+  const barCount=Math.max(12,Math.floor(width/8));
+  waveContext.beginPath();
+  for(let bar=0;bar<barCount;bar++){
+    const from=Math.floor(bar*waveCapacity/barCount),to=Math.floor((bar+1)*waveCapacity/barCount);
+    let energy=0,count=0;
+    for(let bin=from;bin<to;bin++){
+      const pair=waveBins[bin-(waveCapacity-waveBins.length)];
+      if(pair){const peak=Math.max(Math.abs(pair[0]),Math.abs(pair[1]));energy+=peak*peak;count++;}
+    }
+    // A mirrored amplitude envelope, not a frequency spectrum. Fixed display gain only.
+    const amplitude=count?Math.sqrt(energy/count):0;
+    const half=Math.max(1,Math.min(height*.45,amplitude*height*1.35));
+    const x=(bar+.5)*width/barCount;
+    waveContext.moveTo(x,height/2-half);waveContext.lineTo(x,height/2+half);
+  }
+  waveContext.stroke();
+}
+function animateWaveform(now){
+  if(!waveActive)return;
+  if(now-waveLastPaint>=(reduceWaveMotion.matches?125:33)){drawWaveform();waveLastPaint=now;}
+  waveFrame=requestAnimationFrame(animateWaveform);
+}
+function startWaveform(sampleRate){
+  if(waveFrame!==null)cancelAnimationFrame(waveFrame);
+  waveBins=[];waveCapacity=Math.max(1,Math.ceil(sampleRate*2/256));waveActive=true;waveLastPaint=0;
+  $('waveformState').textContent='Live · last 2 seconds';drawWaveform();waveFrame=requestAnimationFrame(animateWaveform);
+}
+function pushWaveform(samples){
+  if(!waveActive)return;
+  for(let i=0;i<samples.length;i+=256){
+    let low=0,high=0;
+    for(let j=i;j<Math.min(i+256,samples.length);j++){const v=Number.isFinite(samples[j])?samples[j]:0;low=Math.min(low,v);high=Math.max(high,v);}
+    waveBins.push([low,high]);
+  }
+  if(waveBins.length>waveCapacity)waveBins.splice(0,waveBins.length-waveCapacity);
+}
+function stopWaveform(){
+  waveActive=false;if(waveFrame!==null)cancelAnimationFrame(waveFrame);waveFrame=null;waveBins=[];
+  $('waveformState').textContent='Microphone off';drawWaveform();
+}
+const waveResize=new ResizeObserver(drawWaveform);waveResize.observe(waveCanvas);
+// End waveform.
+
+let ws, mic, context, source, worklet, sink, finalTimer;
+let mode = 'idle', latest = null, hardware = null, flushResolve = null, latestEmotion = null;
+const JOURNAL_KEY='voice-journal-v1';
+let journal=null;
+function newJournal(){return {id:crypto.randomUUID(),createdAt:new Date().toISOString(),originalTranscript:'',complete:false,interrupted:false,audioSeconds:0,voiceEstimates:[]};}
+function buildEntry(base,words,feeling,note){
+  if(!words.trim())throw new Error('Add some words before saving.');
+  if(!feeling)throw new Error('Choose how you felt, or select “Not sure / prefer not to say”.');
+  return {...base,words:words.trim(),feeling,feelingSource:'self_report',note:note.trim()};
+}
+function readEntries(){const data=JSON.parse(localStorage.getItem(JOURNAL_KEY)||'[]');if(!Array.isArray(data))throw new Error('Saved journal format is invalid.');return data;}
+function showEntries(){
+  $('entries').replaceChildren();
+  try{
+    const entries=readEntries();
+    if(!entries.length)$('entries').textContent='No saved entries yet.';
+    entries.slice().reverse().forEach(entry=>{
+      const row=document.createElement('details'),title=document.createElement('summary');title.textContent=new Date(entry.createdAt).toLocaleString()+' · '+entry.feeling;
+      const words=document.createElement('p');words.textContent=entry.words;words.style.whiteSpace='pre-wrap';
+      const note=document.createElement('p');note.textContent=entry.note;
+      const remove=document.createElement('button');remove.textContent='Delete entry';remove.onclick=()=>{if(!confirm('Delete this saved entry from this browser?'))return;try{localStorage.setItem(JOURNAL_KEY,JSON.stringify(readEntries().filter(x=>x.id!==entry.id)));showEntries();}catch(error){$('saveStatus').textContent='Could not delete: '+error.message;}};
+      const exportButton=document.createElement('button');exportButton.textContent='Download';exportButton.onclick=()=>download(JSON.stringify(entry,null,2),'voice-journal-entry.json','application/json');
+      row.append(title,words,note,exportButton,remove);$('entries').append(row);
+    });
+  }catch(error){$('entries').textContent='Saved entries unavailable: '+error.message;}
+}
+function finishJournal(){if(!journal)return;$('reflection').hidden=false;$('journalWords').value=journal.originalTranscript;}
+function updateJournal(data){
+  if(!journal)return;
+  journal.originalTranscript=[data.confirmed,data.partial].filter(Boolean).join(' ');
+  journal.audioSeconds=data.audio_seconds;journal.complete=data.type==='done';
+  if(journal.complete)finishJournal();
+}
+function status(text, error=false){$('status').textContent=text;$('status').className=error?'error':mode==='recording'?'live':'';}
+function controls(){ $('start').disabled=mode!=='idle'||!hardware?.ready; $('stop').disabled=mode!=='recording'; $('language').disabled=mode!=='idle'; }
+async function cleanup(){
+  stopWaveform();
+  clearTimeout(finalTimer);
+  mic?.getTracks().forEach(t=>t.stop()); mic=null;
+  source?.disconnect(); worklet?.disconnect(); sink?.disconnect();
+  source=worklet=sink=null;
+  if(context){const old=context;context=null;await old.close().catch(()=>{});}
+  $('level').style.width='0';
+}
+async function fail(message){if(journal&&!journal.complete){journal.interrupted=true;finishJournal();}mode='idle';await cleanup();if(ws){const old=ws;ws=null;old.close();}controls();status(message,true);}
+const emotionEmoji={angry:'😠',calm:'😌',disgust:'😖',fear:'😨',happy:'😊',neutral:'😐',sad:'😔',surprise:'😮'};
+function emotionText(label){return (emotionEmoji[label]??'🎙️')+' '+label.charAt(0).toUpperCase()+label.slice(1);}
+function setMascot(emotion){
+  const expressions=['calm','happy','neutral','sad','fear','disgust','angry','surprise'];
+  $('toneMascot').dataset.expression=expressions.includes(emotion)?emotion:'idle';
+}
+function renderEmotion(data){
+  if(data.error){setMascot('idle');$('emotionInfo').textContent='Emotion unavailable: '+data.error;return;}
+  latestEmotion=data;setMascot(data.emotion);
+  if(journal)journal.voiceEstimates.push({...data});
+  $('emotionLabel').textContent=emotionText(data.emotion);
+  $('emotionLabel').setAttribute('aria-label','Estimated vocal expression: '+data.emotion);
+  $('emotionInfo').textContent=`Top model score: ${(data.confidence*100).toFixed(1)}% · ${data.window_seconds.toFixed(1)} s window ending at ${data.end_seconds.toFixed(1)} s · Inference: ${data.inference_ms} ms`;
+  $('emotionScores').replaceChildren();
+  Object.entries(data.probabilities).sort((a,b)=>b[1]-a[1]).forEach(([label,score])=>{
+    const row=document.createElement('div');row.className='score';
+    const text=document.createElement('span');text.textContent=`${emotionText(label)} · ${(score*100).toFixed(1)}%`;
+    const bar=document.createElement('progress');bar.max=1;bar.value=score;bar.setAttribute('aria-label',label);
+    row.append(text,bar);$('emotionScores').append(row);
+  });
+}
+function render(data){
+  updateJournal(data);
+  latest={...data,model:hardware.model,device:hardware.device,language:$('language').value};
+  $('confirmed').textContent=data.confirmed+(data.confirmed&&data.partial?' ':'');
+  $('partial').textContent=data.partial;
+  $('empty').hidden=!!(data.confirmed||data.partial);
+  $('duration').textContent=data.audio_seconds.toFixed(1)+' seconds captured';
+  $('saveMetrics').disabled=false;
+  $('metrics').textContent=`Model: ${hardware.model} · Device: ${hardware.device.toUpperCase()} · Updates: ${data.updates} · Last decode: ${data.decode_ms} ms · First text: ${data.first_partial_ms??'—'} ms`;
+}
+$('start').onclick=async()=>{
+  if(mode!=='idle')return; mode='starting';controls();status('Allow microphone access when your browser asks.');
+  try{
+    if(!navigator.mediaDevices?.getUserMedia)throw new Error('Microphone access requires HTTPS on your phone, or localhost on the PC. Open the HTTPS ngrok link in your browser.');
+    mic=await navigator.mediaDevices.getUserMedia({audio:{channelCount:1,echoCancellation:true,noiseSuppression:true,autoGainControl:false},video:false});
+    context=new AudioContext();await context.resume();
+    await context.audioWorklet.addModule('/capture-worklet.js');
+    ws=new WebSocket(`${location.protocol==='https:'?'wss:':'ws:'}//${location.host}/stream`);ws.binaryType='arraybuffer';
+    const socket=ws;
+    const ready=await new Promise((resolve,reject)=>{
+      const timeout=setTimeout(()=>reject(new Error('Local server did not respond.')),10000);
+      socket.onerror=()=>{clearTimeout(timeout);reject(new Error('Cannot connect to the app. Check that the server and ngrok tunnel are running.'));};
+      socket.onclose=()=>{clearTimeout(timeout);reject(new Error('Connection rejected. Refresh the HTTPS app page and try again.'));};
+      socket.onmessage=event=>{clearTimeout(timeout);const m=JSON.parse(event.data);m.type==='ready'?resolve(true):reject(new Error(m.message));};
+    });
+    if(!ready)return;
+    socket.onmessage=async event=>{
+      const data=JSON.parse(event.data);
+      if(data.type==='error'){await fail(data.message);return;}
+      if(data.type==='emotion')renderEmotion(data);
+      if(data.type==='transcript'||data.type==='done')render(data);
+      if(data.type==='done'){if(!latestEmotion){$('emotionLabel').textContent='🎙️ No emotion estimate';$('emotionLabel').removeAttribute('aria-label');$('emotionInfo').textContent=hardware.emotion?.ready?'No usable speech window was classified. Try speaking clearly for at least four seconds.':(hardware.emotion?.message??'Emotion unavailable');}mode='idle';await cleanup();ws=null;socket.close();controls();status(data.confirmed?'Take a moment to read your words and choose how you felt.':'No speech detected. Check your microphone and try again.');}
+    };
+    socket.onerror=()=>fail('Connection interrupted. Start a new session.');
+    socket.onclose=()=>{if(ws===socket&&mode!=='idle')fail('The local connection closed. Start a new session.');};
+    socket.send(JSON.stringify({type:'start',sample_rate:context.sampleRate,language:$('language').value}));
+    worklet=new AudioWorkletNode(context,'microphone-capture');
+    worklet.port.onmessage=({data})=>{
+      if(data.flushed){flushResolve?.();return;}
+      if(socket.readyState!==WebSocket.OPEN)return;
+      if(socket.bufferedAmount>1024*1024){fail('Audio transfer could not keep up. Restart the session.');return;}
+      pushWaveform(data);
+      let power=0;for(const n of data)power+=n*n;
+      $('level').style.width=Math.min(100,Math.sqrt(power/data.length)*600)+'%';
+      socket.send(data.buffer);
+    };
+    source=context.createMediaStreamSource(mic);sink=context.createGain();sink.gain.value=0;
+    source.connect(worklet);worklet.connect(sink);sink.connect(context.destination);
+    journal=newJournal();$('reflection').hidden=true;$('journalWords').value='';$('feeling').value='';$('note').value='';$('saveStatus').textContent='';
+    latestEmotion=null;setMascot('idle');$('emotionLabel').textContent='🎙️ Waiting for speech';$('emotionLabel').removeAttribute('aria-label');$('emotionInfo').textContent=hardware.emotion?.ready?'Speak for at least four seconds. Emotion updates automatically.':(hardware.emotion?.message??'Emotion loading…');$('emotionScores').replaceChildren();
+    latest=null;$('confirmed').textContent='';$('partial').textContent='';$('empty').hidden=false;$('saveMetrics').disabled=true;
+    $('duration').textContent='0.0 seconds captured';$('metrics').textContent='Listening for speech…';
+    startWaveform(context.sampleRate);
+    mode='recording';controls();status('Listening — your transcript updates automatically.');
+  }catch(error){await fail(error.name==='NotAllowedError'?'Microphone access was denied. Allow it in the browser and try again.':error.message);}
+};
+$('stop').onclick=async()=>{
+  if(mode!=='recording')return;mode='stopping';controls();status('Finishing your transcript and emotion estimate…');
+  const socket=ws;
+  try{
+    await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(new Error('Microphone did not stop cleanly. Please restart.')),3000);flushResolve=()=>{clearTimeout(timer);resolve();};worklet.port.postMessage('flush');});
+    await cleanup();
+    if(socket.readyState!==WebSocket.OPEN)throw new Error('The local connection closed.');
+    socket.send(JSON.stringify({type:'stop'}));
+    finalTimer=setTimeout(()=>fail('Final transcription timed out. You can save the text already received.'),60000);
+  }catch(error){await fail(error.message);}
+};
+function download(text,name,type){const url=URL.createObjectURL(new Blob([text],{type}));const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+function currentEntry(){if(!journal)throw new Error('Record an entry first.');return buildEntry(journal,$('journalWords').value,$('feeling').value,$('note').value);}
+$('saveEntry').onclick=()=>{try{const entry=currentEntry();const entries=readEntries();const index=entries.findIndex(x=>x.id===entry.id);if(index<0)entries.push(entry);else entries[index]=entry;localStorage.setItem(JOURNAL_KEY,JSON.stringify(entries));$('saveStatus').textContent='Saved on this device.';showEntries();}catch(error){$('saveStatus').textContent=error.message+' You can download instead if browser storage is unavailable.';}};
+$('downloadEntry').onclick=()=>{try{download(JSON.stringify(currentEntry(),null,2),'voice-journal-entry.json','application/json');$('saveStatus').textContent='Entry download requested.';}catch(error){$('saveStatus').textContent=error.message;}};
+showEntries();
+$('saveMetrics').onclick=()=>{const {confirmed,partial,...metrics}=latest;download(JSON.stringify({...metrics,emotion:latestEmotion},null,2),'session-measurements.json','application/json');};
+window.addEventListener('pagehide',()=>{stopWaveform();mic?.getTracks().forEach(t=>t.stop());ws?.close();});
+async function health(){try{hardware=await(await fetch('/health')).json();controls();if(mode==='idle'&&!latest)status(hardware.message,!hardware.ready&&!hardware.message.startsWith('Loading'));if(mode==='idle'&&!latest)$('emotionInfo').textContent=hardware.emotion?.ready?'Speak for at least four seconds. Emotion updates automatically.':(hardware.emotion?.message??'Emotion loading…');setTimeout(health,3000);}catch{status('Start the local server, then refresh this page.',true);}}
+health();
+</script></body></html>
